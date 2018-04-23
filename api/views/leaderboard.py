@@ -60,40 +60,59 @@ def get_hot_restaurants(user_id):
     else:
         return jsonify({'status' : 'failed', 'message' : "Endpoint /hot requires GET request"})
 
-@mod.route('/leaderboard/top/<user_id>', methods=["GET"])
+@mod.route('/leaderboard/top/<user_id>', methods=["POST"])
 def get_top_restaurants(user_id):
-    if request.method == "GET":
+    if request.method == "POST":
         try:
             data = request.get_json() #request cuisine, number of days
-            get_top_restaurants = """
-                                    SELECT close_restaurants.restaurant_id, close_restaurants.restaurant_name, AVG(rating.rating), COUNT(checkins)
-                                    FROM serves, restaurant, rating, checkins,
-                                        (SELECT restaurant.restaurant_id, restaurant.restaurant_name
-                                        FROM location, restaurant, "user"
-                                        WHERE "user".user_id = {0} AND
-                                            restaurant.restaurant_id = location.restaurant_id AND
-                                            (abs(location.latitude) < 1.001 * abs("user".latitude) AND
-                                            abs(location.latitude) > 0.999 * abs("user".latitude)) AND
-                                            (abs(location.longitude) < 1.001 * abs("user".longitude) AND
-                                            abs(location.longitude) > 0.999 * abs("user".longitude))
-                                        ) AS close_restaurants
-                                    WHERE close_restaurants.restaurant_id = rating.restaurant_id AND
-	                                      close_restaurants.restaurant_id = location.restaurant_id AND
-                                          location.location_id = checkins.location_id AND
-                                          close_restaurants.restaurant_id = serves.restaurant_id AND
-                                          serves.cuisine_id = {1} AND
-	                                      checkins.timestamp > '{2}' AND
-
-                                    GROUP BY close_restaurants.restaurant_id, close_restaurants.restaurant_name
-                                  """.format(user_id, data['cuisine_id'], datetime.datetime.now() - datetime.timedelta(days=int(data['num_days'])))
+            if data["cuisine_id"] == -1:
+                get_top_restaurants = """
+                                        SELECT close_restaurants.restaurant_id, close_restaurants.restaurant_name, AVG(rating.rating), COUNT(checkins.timestamp)
+                                        FROM serves, restaurant, rating, checkins, location,
+                                            (SELECT restaurant.restaurant_id, restaurant.restaurant_name
+                                            FROM location, restaurant, "user"
+                                            WHERE "user".user_id = {0} AND
+                                                restaurant.restaurant_id = location.restaurant_id AND
+                                                (abs(location.latitude) < 1.001 * abs("user".latitude) AND
+                                                abs(location.latitude) > 0.999 * abs("user".latitude)) AND
+                                                (abs(location.longitude) < 1.001 * abs("user".longitude) AND
+                                                abs(location.longitude) > 0.999 * abs("user".longitude))
+                                            ) AS close_restaurants
+                                        WHERE close_restaurants.restaurant_id = rating.restaurant_id AND
+    	                                      close_restaurants.restaurant_id = location.restaurant_id AND
+                                              location.location_id = checkins.location_id AND
+                                              close_restaurants.restaurant_id = serves.restaurant_id AND
+    	                                      checkins.timestamp > '{1}'
+                                        GROUP BY close_restaurants.restaurant_id, close_restaurants.restaurant_name
+                                      """.format(user_id, datetime.datetime.now() - datetime.timedelta(days=int(data['num_days'])))
+            else:
+                get_top_restaurants = """
+                                        SELECT close_restaurants.restaurant_id, close_restaurants.restaurant_name, AVG(rating.rating), COUNT(checkins.timestamp)
+                                        FROM serves, restaurant, rating, checkins, location,
+                                            (SELECT restaurant.restaurant_id, restaurant.restaurant_name
+                                            FROM location, restaurant, "user"
+                                            WHERE "user".user_id = {0} AND
+                                                restaurant.restaurant_id = location.restaurant_id AND
+                                                (abs(location.latitude) < 1.001 * abs("user".latitude) AND
+                                                abs(location.latitude) > 0.999 * abs("user".latitude)) AND
+                                                (abs(location.longitude) < 1.001 * abs("user".longitude) AND
+                                                abs(location.longitude) > 0.999 * abs("user".longitude))
+                                            ) AS close_restaurants
+                                        WHERE close_restaurants.restaurant_id = rating.restaurant_id AND
+    	                                      close_restaurants.restaurant_id = location.restaurant_id AND
+                                              location.location_id = checkins.location_id AND
+                                              close_restaurants.restaurant_id = serves.restaurant_id AND
+                                              serves.cuisine_id = {1} AND
+    	                                      checkins.timestamp > '{2}'
+                                        GROUP BY close_restaurants.restaurant_id, close_restaurants.restaurant_name
+                                      """.format(user_id, data['cuisine_id'], datetime.datetime.now() - datetime.timedelta(days=int(data['num_days'])))
 
             result = conn.execute(get_top_restaurants)
-
-            restaurants  = []
+            restaurants = []
             for row in result:
                 restaurant = {}
                 for key in row.keys():
-                    restaurant[key] = row[key]
+                    restaurant[key] = str(row[key])
                 restaurants.append(restaurant)
             return jsonify({'restaurants' : restaurants, 'status' : 'success'})
         except Exception as e:
