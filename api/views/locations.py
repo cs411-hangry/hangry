@@ -43,69 +43,33 @@ def get_all_locations():
         raise APIError(str(e))
 
 @mod.route('/locations/restaurant/<restaurant_id>', methods = ["GET"])
-# def get_all_restaurant_locations(restaurant_id):
-#     try:
-#         # query = """
-#         #         SELECT locs.location_id, locs.latitude, locs.longitude, locs.restaurant_id, locs.restaurant_name, rat.avg
-#         #         FROM
-#         #             (SELECT location.location_id, location.latitude, location.longitude, location.restaurant_id, restaurant.restaurant_name, AVG(rating.rating)
-#         #             FROM location, restaurant
-#         #             WHERE location.restaurant_id = restaurant.restaurant_id AND
-#         #                 restaurant.restaurant_id = {}
-#         #             )AS locs,
-#         #             (SELECT restaurant.restaurant_id, AVG(rating.rating) AS avg
-#         #             FROM restaurant, rating
-#         #             WHERE rating.restaurant_id = restaurant.restaurant_id
-#         #             GROUP BY restaurant.restaurant_id
-#         #             )AS rat,
-#         #         WHERE
-#         #             locs.restaurant_id = rat.restaurant_id
-#         #         """.format(restaurant_id)
-#         query = """
-#             SELECT DISTINCT location.location_id, location.latitude, location.longitude, restaurant.restaurant_id AS yo, location.restaurant_id, restaurant.restaurant_name
-#                 FROM location, restaurant
-#                 WHERE location.restaurant_id = restaurant.restaurant_id AND location.restaurant_id=""" + restaurant_id
-#         result = conn.execute()
-#         locations = []
-#         for row in result:
-#             location = {}
-#             for key in row.keys():
-#                 location[key] = row[key]
-#             locations.append(location)
-#         return jsonify({'status':'success', 'locations' : locations})
-#     except Exception as e:
-#         raise APIError(str(e))
-
-@mod.route('/locations/restaurant/<restaurant_id>', methods = ["GET"])
 def get_all_restaurant_locations(restaurant_id):
     try:
-        # query = """
-        #         SELECT locs.location_id, locs.latitude, locs.longitude, locs.restaurant_id, locs.restaurant_name, rat.avg
-        #         FROM
-        #             (SELECT location.location_id, location.latitude, location.longitude, location.restaurant_id, restaurant.restaurant_name, AVG(rating.rating)
-        #             FROM location, restaurant
-        #             WHERE location.restaurant_id = restaurant.restaurant_id AND
-        #                 restaurant.restaurant_id = {}
-        #             )AS locs,
-        #             (SELECT restaurant.restaurant_id, AVG(rating.rating) AS avg
-        #             FROM restaurant, rating
-        #             WHERE rating.restaurant_id = restaurant.restaurant_id
-        #             GROUP BY restaurant.restaurant_id
-        #             )AS rat,
-        #         WHERE
-        #             locs.restaurant_id = rat.restaurant_id
-        #         """.format(restaurant_id)
         query = """
-                SELECT DISTINCT location.location_id, location.latitude, location.longitude, restaurant.restaurant_id AS yo, location.restaurant_id, restaurant.restaurant_name
+                SELECT locs.location_id, locs.latitude, locs.longitude, locs.restaurant_id, locs.restaurant_name, rat.avg
+                FROM
+                    (SELECT location.location_id, location.latitude, location.longitude, location.restaurant_id, restaurant.restaurant_name
                     FROM location, restaurant
-                    WHERE location.restaurant_id = restaurant.restaurant_id AND location.restaurant_id=""" + restaurant_id
-
+                    WHERE location.restaurant_id = restaurant.restaurant_id AND
+                        restaurant.restaurant_id = {}
+                    )AS locs,
+                    (SELECT restaurant.restaurant_id, AVG(rating.rating) AS avg
+                    FROM restaurant, rating
+                    WHERE rating.restaurant_id = restaurant.restaurant_id
+                    GROUP BY restaurant.restaurant_id
+                    )AS rat
+                WHERE
+                    locs.restaurant_id = rat.restaurant_id
+                """.format(restaurant_id)
         result = conn.execute(query)
         locations = []
         for row in result:
             location = {}
             for key in row.keys():
-                location[key] = row[key]
+                if key == "avg":
+                    location[key] = str(row[key])
+                else:
+                    location[key] = row[key]
             locations.append(location)
         return jsonify({'status':'success', 'locations' : locations})
     except Exception as e:
