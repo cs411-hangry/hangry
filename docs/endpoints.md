@@ -946,7 +946,7 @@ This searches the rating relation by the user_id criterion, and returns all the 
             "restaurant_id": 100,
             "timestamp": "sometime",
             "user_id": 1
-            "restaurant_id": name 
+            "restaurant_id": name
         }
     ],
     "status": "success"
@@ -1223,7 +1223,7 @@ This returns all of the trending restaurants based on average rating and number 
 ```
 **Endpoint**
 
-    GET /top/<user_id>  **INCOMPLETE**
+    POST leaderboard/top/<user_id>  **INCOMPLETE**
 
 This returns all of the trend restaurants based on average rating and number of checkins. Needs cuisine_id and num_days as input.
 
