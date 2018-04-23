@@ -22,30 +22,30 @@ def handle_invalid_usage(error):
 def get_hot_restaurants(user_id):
     if request.method == "GET":
         try:
-            # get_hot_restaurants = """
-            #                         SELECT close_restaurants.restaurant_id, close_restaurants.restaurant_name, AVG(rating.rating), COUNT(checkins)
-            #                         FROM restaurant, rating, checkins, location,
-            #                             (SELECT restaurant.restaurant_id, restaurant.restaurant_name
-            #                             FROM location, restaurant, "user"
-            #                             WHERE "user".user_id = {0} AND
-            #                                 restaurant.restaurant_id = location.restaurant_id AND
-            #                                 (abs(location.latitude) < 1.001 * abs("user".latitude) AND
-            #                                 abs(location.latitude) > 0.999 * abs("user".latitude)) AND
-            #                                 (abs(location.longitude) < 1.001 * abs("user".longitude) AND
-            #                                 abs(location.longitude) > 0.999 * abs("user".longitude))
-            #                             ) AS close_restaurants
-            #                         WHERE close_restaurants.restaurant_id = rating.restaurant_id AND
-	        #                               close_restaurants.restaurant_id = location.restaurant_id AND
-            #                               location.location_id = checkins.location_id AND
-	        #                               checkins.timestamp > '{1}'
-            #                         GROUP BY close_restaurants.restaurant_id, close_restaurants.restaurant_name
-            #                         ORDER BY AVG(rating.rating) DESC
-            #                       """.format(user_id, datetime.datetime.now() - datetime.timedelta(days=2*365))
             get_hot_restaurants = """
-            SELECT restaurant.restaurant_id, restaurant.restaurant_name
+                                    SELECT close_restaurants.restaurant_id, close_restaurants.restaurant_name, AVG(rating.rating), COUNT(checkins)
+                                    FROM restaurant, rating, checkins, location,
+                                        (SELECT restaurant.restaurant_id, restaurant.restaurant_name
                                         FROM location, restaurant, "user"
-                                        WHERE "user".user_id = {0}
-                                            """.format(user_id)
+                                        WHERE "user".user_id = {0} AND
+                                            restaurant.restaurant_id = location.restaurant_id AND
+                                            (abs(location.latitude) < 1.001 * abs("user".latitude) AND
+                                            abs(location.latitude) > 0.999 * abs("user".latitude)) AND
+                                            (abs(location.longitude) < 1.001 * abs("user".longitude) AND
+                                            abs(location.longitude) > 0.999 * abs("user".longitude))
+                                        ) AS close_restaurants
+                                    WHERE close_restaurants.restaurant_id = rating.restaurant_id AND
+	                                      close_restaurants.restaurant_id = location.restaurant_id AND
+                                          location.location_id = checkins.location_id AND
+	                                      checkins.timestamp > '{1}'
+                                    GROUP BY close_restaurants.restaurant_id, close_restaurants.restaurant_name
+                                    ORDER BY AVG(rating.rating) DESC
+                                  """.format(user_id, datetime.datetime.now() - datetime.timedelta(days=14))
+            # get_hot_restaurants = """
+            # SELECT restaurant.restaurant_id, restaurant.restaurant_name
+            #                             FROM location, restaurant, "user"
+            #                             WHERE "user".user_id = {0}
+            #                                 """.format(user_id)
             result = conn.execute(get_hot_restaurants)
             restaurants  = []
             for row in result:
@@ -109,10 +109,10 @@ def get_map_info(user_id):
             get_map_info = """
                             SELECT location.location_id, location.latitude, location.longitude, ts.agg
                             FROM location,
-                                (SELECT curr_locations.location_id, STRING_AGG(checkins.timestamp, ',')
+                                (SELECT curr_locations.location_id, STRING_AGG(TO_CHAR(curr_checkins.timestamp,'YYYY-MM-DD HH24:MI:SS.0'), ',') as agg
                                 FROM
                                     (SELECT *
-                                    FROM location
+                                    FROM location, "user"
                                     WHERE "user".user_id = {0} AND
                                         (abs(location.latitude) < 1.001 * abs("user".latitude) AND
                                             abs(location.latitude) > 0.999 * abs("user".latitude)) AND
@@ -138,11 +138,10 @@ def get_map_info(user_id):
                     loc['location_id'] = row['location_id']
                     loc['latitude'] = row['latitude']
                     loc['longitude'] = row['longitude']
-                    loc['timestamp'] = []
-                    #parse string_agg
+                    loc['timestamp'] = row['agg'].split(",")
                 locations.append(loc)
 
-            return jsonify({'locations' : restaurants, 'status' : 'success'})
+            return jsonify({'locations' : locations, 'status' : 'success'})
         except Exception as e:
             raise APIError(str(e))
 
