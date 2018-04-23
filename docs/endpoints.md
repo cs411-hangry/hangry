@@ -927,6 +927,7 @@ This searches the rating relation by the user_id criterion, and returns all the 
             "restaurant_id": 1,
             "timestamp": "sometime",
             "user_id": 1
+            "restaurant_id": name
         },
         {
             "rating": 4,
@@ -934,6 +935,7 @@ This searches the rating relation by the user_id criterion, and returns all the 
             "restaurant_id": 2,
             "timestamp": "sometime",
             "user_id": 1
+            "restaurant_id": name
         },
         .
         .
@@ -944,6 +946,7 @@ This searches the rating relation by the user_id criterion, and returns all the 
             "restaurant_id": 100,
             "timestamp": "sometime",
             "user_id": 1
+            "restaurant_id": name 
         }
     ],
     "status": "success"

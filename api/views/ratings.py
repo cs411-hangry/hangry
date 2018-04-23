@@ -15,7 +15,14 @@ mod = Blueprint('ratings', __name__)
 @mod.route('/ratings/user/<user_id>', methods = ["GET"])
 def get_all_user_ratings(user_id):
     try:
-        result = conn.execute("SELECT * FROM rating WHERE user_id = {}".format(user_id))
+        query = """
+                SELECT rating.rating_id, rating.user_id, rating.restaurant_id, rating.rating, rating.timestamp, restaurant.restaurant_name
+                FROM rating, restaurant
+                WHERE rating.user_id = {} AND
+                    restaurant.restaurant_id = rating.restaurant_id
+                """.format(user_id)
+                
+        result = conn.execute(query)
         user_ratings = []
         for row in result:
             rating = {}
@@ -24,6 +31,7 @@ def get_all_user_ratings(user_id):
             rating["restaurant_id"] = row["restaurant_id"]
             rating["rating"] = row["rating"]
             rating["timestamp"] = row["timestamp"]
+            rating["restaurant_name"] = row["restaurant_name"]
             user_ratings.append(rating)
         return jsonify({'status':'success', 'ratings':user_ratings})
     except Exception as e:
