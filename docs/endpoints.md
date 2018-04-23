@@ -345,7 +345,7 @@ This input must be passed in the form of JSON, as below:
 
 **Endpoint**
 
-    GET /locations
+    GET /locations  **INCOMPLETE**
 
 This returns all of the locations in our Locations table.
 
@@ -380,7 +380,7 @@ This returns all of the locations in our Locations table.
 
 **Endpoint**
 
-    GET /locations/restaurant/<restaurant_id>
+    GET /locations/restaurant/<restaurant_id>  **INCOMPLETE**
 
 This searches the Location relation by the restaurant_id criterion, and either returns the corresponding restaurant location(s) or nothing.
 
@@ -403,7 +403,7 @@ This searches the Location relation by the restaurant_id criterion, and either r
 
 **Endpoint**
 
-    GET /locations/cuisine/<cuisine_id>
+    GET /locations/cuisine/<cuisine_id>  **INCOMPLETE**
 
 This searches the Location relation by the cuisine_id criterion, and either returns the corresponding restaurant location(s) or nothing.
 
@@ -1179,7 +1179,7 @@ This returns checkins corresponding to user_id
 
 **Endpoint**
 
-    GET /checkin/location/<user_id>
+    GET /checkin/location/<user_id>  **INCOMPLETE**
 
 This returns locations corresponding to user_id
 
@@ -1259,7 +1259,7 @@ This returns all of the trending restaurants based on average rating and number 
 ```
 **Endpoint**
 
-    GET /top/<user_id>
+    GET /top/<user_id>  **INCOMPLETE**
 
 This returns all of the trend restaurants based on average rating and number of checkins. Needs cuisine_id and num_days as input.
 
