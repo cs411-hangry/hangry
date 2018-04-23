@@ -17,8 +17,7 @@ def get_all_locations():
     try:
         query = """
                 SELECT locs.location_id, locs.latitude, locs.longitude, locs.restaurant_id, locs.restaurant_name, rat.avg
-                FROM
-                    (SELECT location.location_id, location.latitude, location.longitude, location.restaurant_id, restaurant.restaurant_name, AVG(rating.rating)
+                FROM (SELECT location.location_id, location.latitude, location.longitude, location.restaurant_id, restaurant.restaurant_name
                     FROM location, restaurant
                     WHERE location.restaurant_id = restaurant.restaurant_id
                     )AS locs,
@@ -26,16 +25,18 @@ def get_all_locations():
                     FROM restaurant, rating
                     WHERE rating.restaurant_id = restaurant.restaurant_id
                     GROUP BY restaurant.restaurant_id
-                    )AS rat,
-                WHERE
-                    locs.restaurant_id = rat.restaurant_id
+                    )AS rat
+                WHERE locs.restaurant_id = rat.restaurant_id
                 """
         result = conn.execute(query)
         locations = []
         for row in result:
             location = {}
             for key in row.keys():
-                location[key] = row[key]
+                if key == "avg":
+                    location[key] = str(row[key])
+                else:
+                    location[key] = row[key]
             locations.append(location)
         return jsonify({'status':'success', 'locations' : locations})
     except Exception as e:
@@ -163,7 +164,7 @@ def get_location_data_given_cuisine(cuisine_id):
                             (SELECT DISTINCT restaurant.restaurant_id, restaurant_name
                             FROM restaurant
                             INNER JOIN serves ON restaurant.restaurant_id = serves.restaurant_id) as food_places
-                        WHERE upper(foods.cuisine_name) = upper(\'{}\') AND
+                        WHERE foods.cuisine_id = {} AND
                             food_places.restaurant_id = foods.restaurant_id
                         ) AS food_stuffs
                     WHERE location.restaurant_id = food_stuffs.restaurant_id
