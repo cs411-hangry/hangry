@@ -913,45 +913,6 @@ This input must be passed in the form of JSON, as below:
 
 **Endpoint**
 
-    GET /locations
-
-This returns all of the locations in our Locations table.
-
-**Response**
-
-```
-{
-    "locations": [
-        {
-            "address": "1407 N Prospect Ave, Champaign 61820",
-            "city": "Champaign",
-            "country": "USA",
-            "latitude": 40.1298,
-            "location_id": 1,
-            "longitude": -88.2582,
-            "restaurant_id": 1,
-            "zipcode": "61820"
-        },
-        {
-            "address": "301 N. Neil St., Champaign 61820",
-            "city": "Champaign",
-            "country": "USA",
-            "latitude": 40.118377,
-            "location_id": 2,
-            "longitude": -88.243698,
-            "restaurant_id": 2,
-            "zipcode": "61820"
-        },
-        .
-        .
-        .
-    ],
-    "status": "success"
-}
-```
-
-**Endpoint**
-
     GET /ratings/user/<user_id>
 
 This searches the rating relation by the user_id criterion, and returns all the ratings given by the specified user.
@@ -1249,8 +1210,8 @@ This returns all of the trending restaurants based on average rating and number 
         {
             "restaurant_id": 4,
             "restaurant_name": "Kofusion"
-            "rating": 4
-            "checkins" : 10
+            "count": 4
+            "avg" : 3.17
         },
         ...
     ],
