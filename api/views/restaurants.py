@@ -34,6 +34,23 @@ def get_all_restaurants():
     else:
         return jsonify({'status' : 'failed', 'message' : "Endpoint /restaurants requires GET request"})
 
+@mod.route('/restaurant/<name>', methods=["GET"])
+def get_restaurants_by_name(name):
+    if request.method == "GET":
+        try:
+            result = conn.execute("SELECT * FROM \"restaurant\" WHERE restaurant.restaurant_name=" + name).format(name)
+            restaurants  = []
+            for row in result:
+                restaurant = {}
+                for key in row.keys():
+                    restaurant[key] = row[key]
+                restaurants.append(restaurant)
+            return jsonify({'restaurants' : restaurants})
+        except Exception as e:
+            raise APIError(str(e))
+    else:
+        return jsonify({'status' : 'failed', 'message' : "Endpoint /restaurants requires GET request"})
+
 @mod.route('/restaurant', methods=["POST"])
 def create_restaurant():
     if request.method == "POST":

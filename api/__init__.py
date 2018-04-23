@@ -11,7 +11,7 @@ UPLOAD_FOLDER = 'photos/'
 app = Flask(__name__)
 
 # Setup the SQL Alchmey extension
-app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:postgres@localhost/hangry"
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("SQLALCHEMY_DATABASE_URI", "postgresql://postgres:postgres@localhost/hangry")
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 db = SQLAlchemy(app)
 

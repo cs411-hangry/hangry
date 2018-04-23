@@ -21,7 +21,7 @@ def me():
     return get_user_by_username(username)
 
 @mod.route('/users', methods=["GET"])
-@jwt_required
+# @jwt_required
 def get_all_users():
     # username = get_jwt_identity()
     if request.method == "GET":

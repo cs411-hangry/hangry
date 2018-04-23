@@ -1,6 +1,6 @@
 # Set up Documentation
 
-We assume that you have a PostgreSQL server running on `localhost` at port `5432`, with the user being `postgres`. We also assume that the database `hangry` has been initialized/created.
+Either provide an env variable for `SQLALCHEMY_DATABASE_URI` which is a postgres URI or we assume that you have a PostgreSQL server running on `localhost` at port `5432`, with the user being `postgres`. In the latter case, we also assume that the database `hangry` has been initialized/created.
 
 To create the database and user
 ```
@@ -39,7 +39,7 @@ Werkzeug==0.14.1
 
 1. Run `python db_create.py`. This will create the tables in the database according to the models defined in `models.py`.
 2. Run `python populate.py`. This will populate the tables in the database with some data in the json files in the root directory.
-3. Run `python manage.py runserver`. This will run the server for the API at `http://127.0.0.1:5000/`.
+3. Run `python manager.py runserver`. This will run the server for the API at `http://127.0.0.1:5000/`.
 4. Do stuff.
 
 If you ever need to start again, just run `db_drop.py` and start the steps again
